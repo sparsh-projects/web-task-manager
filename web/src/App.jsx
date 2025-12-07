@@ -8,23 +8,26 @@ import ProtectedRoute from "./components/ProtectedRoute";
 
 export default function App() {
   return (
-    <div className="p-6">
+    <div className="min-h-screen bg-gray-50">
+      
       {/* Navigation bar */}
-      <nav className="flex gap-4 mb-6 text-blue-600">
-        <Link to="/">Home</Link>
-        <Link to="/tasks">Tasks</Link>
-        <Link to="/login">Login</Link>
+      <nav className="w-full bg-white shadow-sm p-4 flex gap-6 text-blue-600 font-medium">
+        <Link to="/" className="hover:text-blue-800 transition">Home</Link>
+        <Link to="/tasks" className="hover:text-blue-800 transition">Tasks</Link>
+        <Link to="/login" className="hover:text-blue-800 transition">Login</Link>
       </nav>
 
-      {/* Routing section */}
-      <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/tasks" element={<ProtectedRoute><Tasks /></ProtectedRoute>} />
-        <Route path="/login" element={<Login />} />
-        <Route path="*" element={<NotFound />} />
-        <Route path="/tasks/:id" element={<TaskDetails />} />
-        <Route path="/tasks/details" element={<TaskDetails />} />
-      </Routes>
+      {/* Main content container */}
+      <div className="max-w-4xl mx-auto p-6">
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/tasks" element={<ProtectedRoute><Tasks /></ProtectedRoute>} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/tasks/:id" element={<TaskDetails />} />
+          <Route path="*" element={<NotFound />} />
+        </Routes>
+      </div>
+
     </div>
   );
 }
