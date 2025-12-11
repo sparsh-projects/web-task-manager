@@ -1,6 +1,7 @@
 import { useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { getTaskById } from "../api/tasks";
+import PageWrapper from "../components/PageWrapper";
 
 export default function TaskDetails() {
   const { id } = useParams(); 
@@ -15,22 +16,15 @@ export default function TaskDetails() {
   }, [id]);
 
   return (
-    <div className="mt-10">
+    <PageWrapper>
       <h1 className="text-3xl font-bold text-gray-900 mb-4 text-center">
         Task Details
       </h1>
 
-      <div className="bg-white shadow-md rounded-md p-6 border max-w-lg mx-auto">
-        <p className="text-lg font-semibold text-gray-900">
-          Task ID: {id}
-        </p>
-
-        {task && (
-          <p className="mt-3 text-gray-700 text-lg">
-            Title: {task.title}
-          </p>
-        )}
+      <div className="bg-white shadow-md rounded-md p-6 border max-w-lg mx-auto mt-10 text-center">
+          <p className="text-lg font-semibold text-gray-900">Task ID: {id}</p>
+          {task && <p className="mt-3 text-gray-700 text-lg">Title: {task.title}</p>}
       </div>
-    </div>
+    </PageWrapper>
   );
 }

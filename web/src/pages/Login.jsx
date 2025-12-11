@@ -1,3 +1,5 @@
+import PageWrapper from "../components/PageWrapper";
+import PrimaryButton from "../components/PrimaryButton";
 import { useNavigate } from "react-router-dom";
 
 export default function Login() {
@@ -9,15 +11,14 @@ export default function Login() {
   };
 
   return (
-    <div className="text-center mt-10">
-      <h1 className="text-3xl font-bold mb-6 text-gray-900">Login Page</h1>
+    <PageWrapper>
+      <h1 className="text-3xl font-bold mb-6 text-gray-900 text-center">Login Page</h1>
 
-      <button
-        onClick={handleLogin}
-        className="bg-blue-600 hover:bg-blue-700 transition text-white px-5 py-2 rounded-md font-medium"
-      >
+      <div className="text-center">
+      <PrimaryButton onClick={handleLogin}>
         Login
-      </button>
-    </div>
+      </PrimaryButton>
+      </div>
+    </PageWrapper>
   );
 }

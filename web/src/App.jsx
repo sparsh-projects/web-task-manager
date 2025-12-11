@@ -11,7 +11,7 @@ export default function App() {
     <div className="min-h-screen bg-gray-50">
       
       {/* Navigation bar */}
-      <nav className="w-full bg-white shadow-sm p-4 flex gap-6 text-blue-600 font-medium">
+      <nav className="w-full bg-white shadow-sm p-4 flex flex-wrap justify-center gap-6 text-blue-600 font-medium">
         <Link to="/" className="hover:text-blue-800 transition">Home</Link>
         <Link to="/tasks" className="hover:text-blue-800 transition">Tasks</Link>
         <Link to="/login" className="hover:text-blue-800 transition">Login</Link>
