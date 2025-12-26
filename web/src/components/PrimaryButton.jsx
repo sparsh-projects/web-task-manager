@@ -3,7 +3,7 @@ export default function PrimaryButton({ children, onClick, className=""}) {
     return (
         <button
             onClick={onClick}
-            className="`
+            className="
                 bg-blue-600
                 text-white
                 px-4
@@ -13,7 +13,7 @@ export default function PrimaryButton({ children, onClick, className=""}) {
                 transition
                 font-medium
                 ${className}
-            `"
+            "
         >
             {children}
         </button>    

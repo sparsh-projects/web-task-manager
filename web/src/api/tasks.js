@@ -17,3 +17,9 @@ export const getTaskById = async (id) => {
   const res = await api.get(`/tasks/${id}`);
   return res.data;
 };
+
+// Mark task as completed
+export const completeTask = async (id) => {
+  const res = await api.patch(`/tasks/${id}/complete`);
+  return res.data;
+};

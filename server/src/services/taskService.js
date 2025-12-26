@@ -1,32 +1,66 @@
-let tasks= [
-    { id: 1, title: "Learn React" },
-    { id: 2, title: "Master MERN" },
-    { id: 3, title: "Learn Python" }
-];
+import Task from '../models/Task.js';
 
-export function getAllTasks(){
-    console.log("🟣 Service: getAllTasks");
-    return tasks;
+export async function getAllTasks(filter = {}) {       // added filter parameter to get specific tasks based on criteria
+  console.log(" Service: getAllTasks, Filter =", filter);
+  const tasks = await Task.find(filter).sort({ createdAt: -1 });
+  const now= new Date();
+  return tasks.map((task)=>{
+    const taskObj= task.toObject();
+    // --- Remaining days logic (safe & meaningful) ---
+    if (!task.completed && task.dueDate) {
+      const diffMs = task.dueDate.getTime() - now.getTime();
+      const diffDays = Math.ceil(diffMs / (1000 * 60 * 60 * 24));
+
+      taskObj.remainingDays = diffDays > 0 ? diffDays : 0;
+    } else {
+      taskObj.remainingDays = null;
+    }
+    // --- Overdue logic ---
+    taskObj.isOverdue= !task.completed && task.dueDate && task.dueDate < now;      //means task is overdue if not completed and dueDate is in the past     
+    return taskObj;
+  });
 }
 
-export function getTaskByIdService(id){
-    console.log("🟣 Service: getTaskByIdService, ID =", id);
+
+export async function getTaskByIdService(id){
+    console.log(" Service: getTaskByIdService, ID =", id);
     if(!id){
-        console.log("❌ Service Error: ID missing");
+        console.log(" Service Error: ID missing");
         throw new Error("ID is required");
     }
-    const task = tasks.find((t)=> t.id ==id);
+    const task = await Task.findById(id);
     return task;
 }
 
-export function createTaskService(title){
-    console.log("🟣 Service: createTaskService");
-
+export async function createTaskService(title){
+    console.log(" Service: createTaskService");
     if(!title){
-        console.log("❌ Service Error: Title missing");
+        console.log(" Service Error: Title missing");
         throw new Error("Title is required");
     }
-    const newTask= {id: Date.now(), title};
-    tasks.push(newTask);
-    return newTask;
+    const task= await Task.create({ title });
+    return task;
+}
+
+export async function completeTaskService(id) {
+  const task = await Task.findById(id);
+  if (!task) return null;
+  // already completed → no-op
+  if (task.completed) return task;
+  task.completed = true;
+  task.completedAt = new Date();
+  await task.save();
+  return task;
+}
+
+/**
+ * Mark task as incomplete
+ */
+export async function incompleteTaskService(id) {
+  const task = await Task.findById(id);
+  if (!task) return null;
+  task.completed = false;
+  task.completedAt = null;
+  await task.save();
+  return task;
 }

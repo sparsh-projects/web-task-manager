@@ -1,3 +1,6 @@
+import dotenv from "dotenv";
+dotenv.config();
+import mongoose from "mongoose";
 import express from 'express';
 import helmet from 'helmet';
 import cors from 'cors';
@@ -16,7 +19,7 @@ app.get("/api/health", (req, res) => {
 });
 
 // Mount the Task routes
-app.use("/api/tasks", taskRoutes);   // ✅ ADD THIS
+app.use("/api/tasks", taskRoutes); 
 
 // Default route
 app.get("/", (req, res) => {
@@ -33,6 +36,13 @@ app.use(errorMiddleware);
 
 // Start server
 const PORT = process.env.PORT || 5000;
+
+mongoose.connect(process.env.MONGO_URI)
+        .then(() => { console.log("MongoDB connected successfully"); })
+        .catch((err) => { console.error("MongoDB connection error:", err.message); 
+                          process.exit(1);
+        });
+
 app.listen(PORT, () => {
   console.log(`API running at http://localhost:${PORT}`);
 });
