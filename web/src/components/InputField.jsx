@@ -1,9 +1,11 @@
-export default function InputField({ value, onChange, placeholder="", className=""}) {
+export default function InputField({type = "text", onKeyDown,value, onChange, placeholder="", className=""}) {
     return (
         <input
+         type={type}
             value={value}
             onChange={onChange}
             placeholder={placeholder}
+            onKeyDown={onKeyDown} 
             className={`
                 border border-gray-300
                 px-3

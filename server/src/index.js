@@ -18,7 +18,7 @@ app.get("/api/health", (req, res) => {
   res.json({ status: "OK", message: "API is healthy" });
 });
 
-// Mount the Task routes
+// Mount Task routes
 app.use("/api/tasks", taskRoutes); 
 
 // Default route
@@ -42,6 +42,8 @@ mongoose.connect(process.env.MONGO_URI)
         .catch((err) => { console.error("MongoDB connection error:", err.message); 
                           process.exit(1);
         });
+
+
 
 app.listen(PORT, () => {
   console.log(`API running at http://localhost:${PORT}`);

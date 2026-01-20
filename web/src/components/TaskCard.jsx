@@ -4,6 +4,8 @@ export default function TaskCard({
   title,
   onClick,
   onComplete,
+  onIncomplete,
+  onDelete,
   isOverdue,
   dueDate,
   remainingDays,
@@ -11,52 +13,67 @@ export default function TaskCard({
 }) {
   return (
     <div className="border p-4 rounded-md shadow-sm hover:shadow-md bg-white transition mb-4">
-      
-      {/* Title opens task details */}
+
+      {/* Title */}
       <p
         onClick={onClick}
-        className="text-lg font-semibold cursor-pointer"
+        className="text-lg font-semibold cursor-pointer text-gray-900"
       >
         {title}
       </p>
 
-      {/* Due date (from DB) */}
+      {/* Due date */}
       {dueDate && (
         <p className="text-sm text-gray-500 mt-1">
           Due: {new Date(dueDate).toLocaleDateString()}
         </p>
       )}
 
-      {/* Overdue warning (computed in backend) */}
+      {/* Overdue */}
       {isOverdue && (
-        <p className="text-sm text-red-600 mt-1">
+        <p className="text-sm text-red-600 mt-1 font-medium">
           ⚠️ Overdue
         </p>
       )}
 
-      {/* Remaining days (computed in backend) */}
-      {remainingDays !== null && !isOverdue && (
-        <p className="text-sm text-gray-600 mt-1">
-          {remainingDays} days remaining
+      {/* Remaining days */}
+      {!completedAt && remainingDays !== null && !isOverdue && (
+        <p className="text-sm text-gray-500 mt-1">
+          ⏳ {remainingDays} days remaining
         </p>
       )}
 
-      {/* Completed date (set by backend) */}
+      {/* Completed info */}
       {completedAt && (
         <p className="text-sm text-green-600 mt-1">
-          Completed on:{" "}
+          ✅ Completed on{" "}
           {new Date(completedAt).toLocaleDateString()}
         </p>
       )}
 
-      {/* Mark Complete button (only if not completed) */}
-      {!completedAt && onComplete && (
-        <div className="mt-2">
+      {/* Actions */}
+      <div className="mt-4 flex items-center gap-3">
+        {!completedAt && onComplete && (
           <PrimaryButton onClick={onComplete}>
             Mark Complete
           </PrimaryButton>
-        </div>
-      )}
+        )}
+
+        {completedAt && onIncomplete && (
+          <PrimaryButton onClick={onIncomplete}>
+            Mark Incomplete
+          </PrimaryButton>
+        )}
+
+        {onDelete && (
+          <button
+            onClick={onDelete}
+            className="text-red-600 text-sm hover:underline"
+          >
+            Delete
+          </button>
+        )}
+      </div>
     </div>
   );
 }

@@ -23,3 +23,21 @@ export const completeTask = async (id) => {
   const res = await api.patch(`/tasks/${id}/complete`);
   return res.data;
 };
+
+// Mark task as incomplete
+export const incompleteTask= async (id) => {
+  const res = await api.patch(`/tasks/${id}/incomplete`);
+  return res.data;
+};
+
+// Update a task (title, duedate, notes)
+export const updateTask = async (id, data) => {
+  const res = await api.patch(`/tasks/${id}`, data);
+  return res.data;
+};
+
+// Delete a task
+export const deleteTask = async (id) => {
+  const res = await api.delete(`/tasks/${id}`);
+  return res.data;
+};

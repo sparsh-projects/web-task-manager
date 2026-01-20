@@ -1,6 +1,13 @@
 import { Router } from "express";
-import { getAllTasksController, createTaskController, getTaskByIdController, completeTaskController,
-  incompleteTaskController, } from "../controllers/taskController.js";
+import {
+  getAllTasksController,
+  createTaskController,
+  getTaskByIdController,
+  completeTaskController,
+  incompleteTaskController,
+  updateTaskController,
+  deleteTaskController,
+} from "../controllers/taskController.js";
 
 const router = Router();
 
@@ -25,5 +32,10 @@ router.patch("/:id/complete", completeTaskController);
 // PATCH update incompletion status
 router.patch("/:id/incomplete", incompleteTaskController);
 
+// PATCH update task
+router.patch("/:id", updateTaskController);
+
+// DELETE task
+router.delete("/:id", deleteTaskController);
 
 export default router;
