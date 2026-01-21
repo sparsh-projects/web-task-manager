@@ -6,6 +6,7 @@ import helmet from 'helmet';
 import cors from 'cors';
 import { errorMiddleware } from './middleware/errorMiddleware.js';
 import taskRoutes from "./routes/taskRoutes.js";   
+import dashboardRoutes from "./routes/dashboardRoutes.js";
 
 const app = express();
 
@@ -26,6 +27,10 @@ app.get("/", (req, res) => {
   res.json({ message: "Welcome to the Task Manager API" });
 });
 
+//Dashboard routes
+app.use("/api/dashboard", dashboardRoutes);
+
+// 404 handler
 app.use((req, res, next) => {
   console.log("⚠️ 404 Not Found:", req.originalUrl);
   res.status(404).json({ error: "Route not found" });
