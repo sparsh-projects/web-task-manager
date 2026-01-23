@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import PageWrapper from "../components/PageWrapper";
-import api from "../api/client";
+import { getDashboard } from "../api/dashboard";
 
 export default function Home() {
   const [range, setRange] = useState("week");
@@ -13,15 +13,17 @@ export default function Home() {
 
   async function loadStats() {
     setLoading(true);
-    const res = await api.get(`/dashboard?range=${range}`);
-    setStats(res.data);
+    const data = await getDashboard(range);
+    setStats(data);
     setLoading(false);
   }
 
   if (loading || !stats) {
     return (
       <PageWrapper>
-        <p className="text-center text-gray-500">Loading dashboard...</p>
+        <p className="text-center text-gray-500">
+          Loading dashboard...
+        </p>
       </PageWrapper>
     );
   }
@@ -33,7 +35,9 @@ export default function Home() {
       {/* ───────── HEADER ───────── */}
       <div className="flex justify-between items-center mb-8">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Dashboard</h1>
+          <h1 className="text-3xl font-bold text-gray-900">
+            Dashboard
+          </h1>
           <p className="text-gray-500">
             Productivity overview ({range})
           </p>
@@ -63,7 +67,10 @@ export default function Home() {
           <Card label="Active Tasks" value={counts.active} />
           <Card label="Overdue Tasks" value={counts.overdue} />
           <Card label="Completed Tasks" value={counts.completed} />
-          <Card label="Success Rate" value={`${success.successPercentage}%`} />
+          <Card
+            label="Success Rate"
+            value={`${success.successPercentage}%`}
+          />
         </Grid>
       </Section>
 
@@ -73,13 +80,15 @@ export default function Home() {
           <Card
             label="Overdue Load"
             value={counts.overdue}
-            sub="Tasks past due date"
+            sub="Tasks past their due date"
           />
           <Card
             label="Avg Completion Time"
             value={
               velocity.avgCompletionTime
-                ? `${Math.round(velocity.avgCompletionTime / 86400000)} days`
+                ? `${Math.round(
+                    velocity.avgCompletionTime / 86400000
+                  )} days`
                 : "—"
             }
             sub="From creation to completion"
@@ -90,9 +99,18 @@ export default function Home() {
       {/* ───────── MOMENTUM ───────── */}
       <Section title="Momentum">
         <Grid cols={3}>
-          <Card label="Completed Today" value={momentum.completedToday} />
-          <Card label="This Week" value={momentum.completedThisWeek} />
-          <Card label="This Month" value={momentum.completedThisMonth} />
+          <Card
+            label="Completed Today"
+            value={momentum.completedToday}
+          />
+          <Card
+            label="This Week"
+            value={momentum.completedThisWeek}
+          />
+          <Card
+            label="This Month"
+            value={momentum.completedThisMonth}
+          />
         </Grid>
       </Section>
     </PageWrapper>
@@ -130,10 +148,16 @@ function Grid({ cols, children }) {
 
 function Card({ label, value, sub }) {
   return (
-    <div className="bg-white border border-gray-200 rounded-lg p-5">
+    <div className="bg-white border border-black rounded-lg p-5">
       <p className="text-sm text-gray-500">{label}</p>
-      <p className="text-2xl font-bold text-gray-900 mt-1">{value}</p>
-      {sub && <p className="text-xs text-gray-400 mt-1">{sub}</p>}
+      <p className="text-2xl font-bold text-gray-900 mt-1">
+        {value}
+      </p>
+      {sub && (
+        <p className="text-xs text-gray-400 mt-1">
+          {sub}
+        </p>
+      )}
     </div>
   );
 }
