@@ -1,55 +1,58 @@
 import dotenv from "dotenv";
 dotenv.config();
+
+import express from "express";
 import mongoose from "mongoose";
-import express from 'express';
-import helmet from 'helmet';
-import cors from 'cors';
-import { errorMiddleware } from './middleware/errorMiddleware.js';
-import taskRoutes from "./routes/taskRoutes.js";   
+import cors from "cors";
+import helmet from "helmet";
+
+import taskRoutes from "./routes/taskRoutes.js";
 import dashboardRoutes from "./routes/dashboardRoutes.js";
+import authRoutes from "./routes/authRoutes.js";
+import { errorMiddleware } from "./middleware/errorMiddleware.js";
 
 const app = express();
 
-app.use(helmet());
-app.use(cors());
-app.use(express.json());
+/* ───────── GLOBAL MIDDLEWARE ───────── */
+app.use(helmet());              // security headers
+app.use(cors());                // allow frontend requests
+app.use(express.json());        // parse JSON bodies
 
-// health check route
+/* ───────── HEALTH & ROOT ───────── */
 app.get("/api/health", (req, res) => {
   res.json({ status: "OK", message: "API is healthy" });
 });
 
-// Mount Task routes
-app.use("/api/tasks", taskRoutes); 
-
-// Default route
 app.get("/", (req, res) => {
   res.json({ message: "Welcome to the Task Manager API" });
 });
 
-//Dashboard routes
+/* ───────── ROUTES ───────── */
+app.use("/api/auth", authRoutes);
+app.use("/api/tasks", taskRoutes);
 app.use("/api/dashboard", dashboardRoutes);
 
-// 404 handler
-app.use((req, res, next) => {
+/* ───────── 404 HANDLER ───────── */
+app.use((req, res) => {
   console.log("⚠️ 404 Not Found:", req.originalUrl);
   res.status(404).json({ error: "Route not found" });
 });
 
-// GLOBAL ERROR HANDLER — MUST BE LAST
+/* ───────── GLOBAL ERROR HANDLER (LAST) ───────── */
 app.use(errorMiddleware);
 
-// Start server
+/* ───────── SERVER + DB ───────── */
 const PORT = process.env.PORT || 5000;
 
-mongoose.connect(process.env.MONGO_URI)
-        .then(() => { console.log("MongoDB connected successfully"); })
-        .catch((err) => { console.error("MongoDB connection error:", err.message); 
-                          process.exit(1);
-        });
-
-
-
-app.listen(PORT, () => {
-  console.log(`API running at http://localhost:${PORT}`);
-});
+mongoose
+  .connect(process.env.MONGO_URI)
+  .then(() => {
+    console.log("✅ MongoDB connected");
+    app.listen(PORT, () => {
+      console.log(`🚀 API running at http://localhost:${PORT}`);
+    });
+  })
+  .catch((err) => {
+    console.error("❌ MongoDB connection error:", err.message);
+    process.exit(1);
+  });

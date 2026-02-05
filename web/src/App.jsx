@@ -23,7 +23,7 @@ export default function App() {
           <Route path="/" element={<Home />} />
           <Route path="/tasks" element={<ProtectedRoute><Tasks /></ProtectedRoute>} />
           <Route path="/login" element={<Login />} />
-          <Route path="/tasks/:id" element={<TaskDetails />} />
+          <Route path="/tasks/:id" element={<ProtectedRoute><TaskDetails/></ProtectedRoute>} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </div>

@@ -67,10 +67,7 @@ export default function Home() {
           <Card label="Active Tasks" value={counts.active} />
           <Card label="Overdue Tasks" value={counts.overdue} />
           <Card label="Completed Tasks" value={counts.completed} />
-          <Card
-            label="Success Rate"
-            value={`${success.successPercentage}%`}
-          />
+          <Card label="Success Rate" value={`${success.successPercentage}%`}/>
         </Grid>
       </Section>
 

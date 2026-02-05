@@ -8,6 +8,7 @@ import {
   updateTaskController,
   deleteTaskController,
 } from "../controllers/taskController.js";
+import authMiddleware from "../middleware/authMiddleware.js";
 
 const router = Router();
 
@@ -21,7 +22,7 @@ router.use((req, res, next) => {
 router.get("/", getAllTasksController);
 
 // POST create task
-router.post("/", createTaskController);
+router.post("/", authMiddleware, createTaskController);
 
 // GET single task by ID
 router.get("/:id", getTaskByIdController);
