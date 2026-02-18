@@ -1,7 +1,7 @@
 import { Routes, Route, Link } from "react-router-dom";
 import Home from "./pages/Home";
 import Tasks from "./pages/Tasks";
-import Login from "./pages/Login";
+import Auth from "./pages/Auth";
 import NotFound from "./pages/NotFound";
 import TaskDetails from "./pages/TaskDetails";
 import ProtectedRoute from "./components/ProtectedRoute";
@@ -22,7 +22,7 @@ export default function App() {
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/tasks" element={<ProtectedRoute><Tasks /></ProtectedRoute>} />
-          <Route path="/login" element={<Login />} />
+          <Route path="/login" element={<Auth/>} />
           <Route path="/tasks/:id" element={<ProtectedRoute><TaskDetails/></ProtectedRoute>} />
           <Route path="*" element={<NotFound />} />
         </Routes>

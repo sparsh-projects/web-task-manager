@@ -1,20 +1,24 @@
 import { useEffect, useState } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import TaskCard from "../components/TaskCard";
 import PageWrapper from "../components/PageWrapper";
-import { getTasks, createTask, completeTask, incompleteTask, deleteTask,} from "../api/tasks";
-import InputField from "../components/InputField";
 import PrimaryButton from "../components/PrimaryButton";
+import {
+  getTasks,
+  createTask,
+  completeTask,
+  incompleteTask,
+  deleteTask,
+} from "../api/tasks";
+import api from "../api/client";
 
 export default function Tasks() {
   const navigate = useNavigate();
-  const location = useLocation();
 
   const [tasks, setTasks] = useState([]);
-  const [newTitle, setNewTitle] = useState("");
-  const [dueDate, setDueDate] = useState("");
-  const [notes, setNotes]= useState("");
-  const [showCreateForm, setShowCreateForm] = useState(false);
+  const [input, setInput] = useState("");
+  const [parsedData, setParsedData] = useState(null);
+  const [loadingAI, setLoadingAI] = useState(false);
 
   useEffect(() => {
     loadTasks();
@@ -25,86 +29,153 @@ export default function Tasks() {
     setTasks(data);
   }
 
-  const handleOpenTask = (id) => {
-    navigate(`/tasks/${id}`);
-  };
+  function formatDateForInput(isoDate) {
+    if (!isoDate) return "";
+    return isoDate.split("T")[0];
+  }
 
-  const handleCreateTask = async () => {
-    if (!newTitle.trim()) return;
-    await createTask({
-      title: newTitle,
-      dueDate: dueDate || null, // optional
-      notes: notes.trim() || "",    //optional
-    });
-    setNewTitle("");
-    setDueDate("");
-    setShowCreateForm(false);
+  async function handleParseWithAI() {
+    if (!input.trim()) return;
+
+    try {
+      setLoadingAI(true);
+
+      const res = await api.post("/ai/parse", {
+        input,
+      });
+
+      setParsedData(res.data);
+    } catch (err) {
+      alert("AI parsing failed");
+    } finally {
+      setLoadingAI(false);
+    }
+  }
+
+  async function handleConfirmCreate() {
+    if (!parsedData.title.trim()) {
+      alert("Title cannot be empty");
+      return;
+    }
+
+    await createTask(parsedData);
+
+    setParsedData(null);
+    setInput("");
     loadTasks();
-  };
+  }
+
+  function handleCancelPreview() {
+    setParsedData(null);
+  }
 
   async function handleCompleteTask(id) {
     await completeTask(id);
     loadTasks();
   }
+
   async function handleIncompleteTask(id) {
     await incompleteTask(id);
     loadTasks();
   }
+
   async function handleDeleteTask(id) {
-    const confirm= window.confirm("Are you sure you want to delete this task?");
-    if (!confirm) return;
+    const confirmDelete = window.confirm(
+      "Are you sure you want to delete this task?"
+    );
+    if (!confirmDelete) return;
+
     await deleteTask(id);
     loadTasks();
   }
-
 
   return (
     <PageWrapper>
       <h1 className="text-3xl font-bold text-center mb-6">Tasks</h1>
 
-      {location.state?.message && (
-        <p className="text-yellow-600 text-center">
-          {location.state.message}
-        </p>
-      )}
-      
-      {!showCreateForm && (
-        <div className="flex justify-center mb-6">
-          <PrimaryButton onClick={() => setShowCreateForm(true)}>
-            Create Task
-          </PrimaryButton>
-        </div>
-      )}
-
-      {/* Create Task */}
-      {showCreateForm && (
-      <div className="flex flex-col gap-3 mb-6 max-w-xl mx-auto">
-        <InputField
-          value={newTitle}
-          onChange={(e) => setNewTitle(e.target.value)}
-          placeholder="New task title"
-        />
-
-        <InputField
-          type="date"
-          value={dueDate}
-          onChange={(e) => setDueDate(e.target.value)}
-          onKeyDown={(e) => e.preventDefault()}
-        />
-
+      {/* SMART AI INPUT */}
+      <div className="max-w-2xl mx-auto space-y-4 mb-10">
         <textarea
-          value={notes}
-          onChange={(e)=> setNotes(e.target.value)}
-          placeholder="Add Notes (optional)"
-          className="border px-3 py-2 rounded"
+          value={input}
+          onChange={(e) => setInput(e.target.value)}
+          placeholder="Type something like: Finish learning React in 15 days include hooks"
+          className="w-full border rounded-lg px-4 py-3 resize-none"
           rows={3}
         />
 
-        <PrimaryButton onClick={handleCreateTask}>Add</PrimaryButton>
+        <PrimaryButton onClick={handleParseWithAI} disabled={loadingAI}>
+          {loadingAI ? "Processing..." : "Parse with AI"}
+        </PrimaryButton>
       </div>
+
+      {/* EDITABLE PREVIEW */}
+      {parsedData && (
+        <div className="border rounded-xl p-6 max-w-2xl mx-auto mb-12 space-y-4">
+          <h2 className="text-xl font-semibold">Preview (Editable)</h2>
+
+          <div>
+            <label className="font-semibold">Title</label>
+            <input
+              type="text"
+              value={parsedData.title}
+              onChange={(e) =>
+                setParsedData({
+                  ...parsedData,
+                  title: e.target.value,
+                })
+              }
+              className="w-full border px-3 py-2 rounded mt-1"
+            />
+          </div>
+
+          <div>
+            <label className="font-semibold">Due Date</label>
+            <input
+              type="date"
+              value={formatDateForInput(parsedData.dueDate)}
+              onChange={(e) =>
+                setParsedData({
+                  ...parsedData,
+                  dueDate: e.target.value
+                    ? new Date(e.target.value).toISOString()
+                    : null,
+                })
+              }
+              className="w-full border px-3 py-2 rounded mt-1"
+            />
+          </div>
+
+          <div>
+            <label className="font-semibold">Notes</label>
+            <textarea
+              value={parsedData.notes}
+              onChange={(e) =>
+                setParsedData({
+                  ...parsedData,
+                  notes: e.target.value,
+                })
+              }
+              className="w-full border px-3 py-2 rounded mt-1"
+              rows={3}
+            />
+          </div>
+
+          <div className="flex gap-3">
+            <PrimaryButton onClick={handleConfirmCreate}>
+              Confirm & Create
+            </PrimaryButton>
+
+            <button
+              onClick={handleCancelPreview}
+              className="px-4 py-2 border rounded"
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
       )}
 
-      {/* Active Tasks */}
+      {/* ACTIVE TASKS */}
       <h2 className="text-xl font-semibold mb-4">Active Tasks</h2>
 
       {tasks
@@ -116,13 +187,13 @@ export default function Tasks() {
             dueDate={task.dueDate}
             isOverdue={task.isOverdue}
             remainingDays={task.remainingDays}
-            onClick={() => handleOpenTask(task._id)}
+            onClick={() => navigate(`/tasks/${task._id}`)}
             onComplete={() => handleCompleteTask(task._id)}
             onDelete={() => handleDeleteTask(task._id)}
           />
         ))}
 
-      {/* Completed Tasks */}
+      {/* COMPLETED TASKS */}
       <h2 className="text-xl font-semibold mt-10 mb-4">Completed Tasks</h2>
 
       {tasks
@@ -132,7 +203,7 @@ export default function Tasks() {
             key={task._id}
             title={task.title}
             completedAt={task.completedAt}
-            onClick={() => handleOpenTask(task._id)}
+            onClick={() => navigate(`/tasks/${task._id}`)}
             onIncomplete={() => handleIncompleteTask(task._id)}
             onDelete={() => handleDeleteTask(task._id)}
           />
